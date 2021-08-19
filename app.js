@@ -1,21 +1,21 @@
-const express = require('express');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const flash = require('connect-flash');
-const dotenv = require('dotenv');
-dotenv.config();
-const app = express();
+const express = require('express')
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
+const flash = require('connect-flash')
+const markdown = require('marked')
+const app = express()
+const sanitizeHTML = require('sanitize-html')
 
 let sessionOptions = session({
-  secret: process.env.SECRET,
-  store: MongoStore.create({client: require('./db')}),
+  secret: "JavaScript is sooooooooo coool",
+  store: new MongoStore({client: require('./db')}),
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 24, httpOnly: true }
-});
+  cookie: {maxAge: 1000 * 60 * 60 * 24, httpOnly: true}
+})
 
-app.use(sessionOptions);
-app.use(flash());
+app.use(sessionOptions)
+app.use(flash())
 
 app.use(function(req, res, next) {
   // make our markdown function available from within ejs templates
@@ -35,17 +35,15 @@ app.use(function(req, res, next) {
   next()
 })
 
+const router = require('./router')
 
-const router = require('./router');
+app.use(express.urlencoded({extended: false}))
+app.use(express.json())
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.static('public'))
+app.set('views', 'views')
+app.set('view engine', 'ejs')
 
-app.use(express.static('public'));
-app.set('views', 'views');
-app.set('view engine', 'ejs');
+app.use('/', router)
 
-//  Routes
-app.use('/', router);
-
-module.exports = app;
+module.exports = app

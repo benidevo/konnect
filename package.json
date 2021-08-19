@@ -5,14 +5,19 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon db.js"
+    "server": "nodemon db --ignore frontend-js --ignore public/ & webpack --watch"
   },
   "author": "Benjamin Idewor",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "axios": "^0.21.1",
+    "babel-loader": "^8.2.2",
     "bcryptjs": "^2.4.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^4.4.1",
+    "dompurify": "^2.3.1",
     "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
@@ -21,6 +26,8 @@
     "md5": "^2.3.0",
     "mongodb": "^4.1.0",
     "sanitize-html": "^2.4.0",
-    "validator": "^13.6.0"
+    "validator": "^13.6.0",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.8.0"
   }
 }

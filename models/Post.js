@@ -1,7 +1,7 @@
-const postsCollection = require('../db').db().collection("posts");
-const ObjectID = require('mongodb').ObjectId;
-const User = require('./User');
-const sanitizeHTML = require('sanitize-html');
+const postsCollection = require('../db').db().collection("posts")
+const ObjectID = require('mongodb').ObjectId
+const User = require('./User')
+const sanitizeHTML = require('sanitize-html')
 
 let Post = function(data, userid, requestedPostId) {
   this.data = data
@@ -76,7 +76,7 @@ Post.prototype.actuallyUpdate = function() {
   })
 }
 
-Post.reusablePostQuery = function(uniqueOperations, visitorId) {
+Post.reusablePostQuery = function(uniqueOperations, visitorId, finalOperations = []) {
   return new Promise(async function(resolve, reject) {
     let aggOperations = uniqueOperations.concat([
       {$lookup: {from: "users", localField: "author", foreignField: "_id", as: "authorDocument"}},
@@ -87,13 +87,14 @@ Post.reusablePostQuery = function(uniqueOperations, visitorId) {
         authorId: "$author",
         author: {$arrayElemAt: ["$authorDocument", 0]}
       }}
-    ])
+    ]).concat(finalOperations)
 
     let posts = await postsCollection.aggregate(aggOperations).toArray()
 
     // clean up author property in each post object
     posts = posts.map(function(post) {
       post.isVisitorOwner = post.authorId.equals(visitorId)
+      post.authorId = undefined
 
       post.author = {
         username: post.author.username,
@@ -119,6 +120,7 @@ Post.findSingleById = function(id, visitorId) {
     ], visitorId)
 
     if (posts.length) {
+      console.log(posts[0])
       resolve(posts[0])
     } else {
       reject()
@@ -144,6 +146,19 @@ Post.delete = function(postIdToDelete, currentUserId) {
         reject()
       }    
     } catch {
+      reject()
+    }
+  })
+}
+
+Post.search = function(searchTerm) {
+  return new Promise(async (resolve, reject) => {
+    if (typeof(searchTerm) == "string") {
+      let posts = await Post.reusablePostQuery([
+        {$match: {$text: {$search: searchTerm}}}
+      ], undefined, [{$sort: {score: {$meta: "textScore"}}}])
+      resolve(posts)
+    } else { 
       reject()
     }
   })
