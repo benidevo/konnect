@@ -61,7 +61,7 @@ export default class Search {
       this.resultsArea.innerHTML = DOMPurify.sanitize(`<div class="list-group shadow-sm">
       <div class="list-group-item active"><strong>Search Results</strong> (${posts.length > 1 ? `${posts.length} items found` : '1 item found'})</div>
       ${posts.map(post => {
-        let postDate = new Date(post.createdDate)
+        let postDate = new Date(post.createdAt)
         return `<a href="/post/${post._id}" class="list-group-item list-group-item-action">
         <img class="avatar-tiny" src="${post.author.avatar}"> <strong>${post.title}</strong>
         <span class="text-muted small">by ${post.author.username} on ${postDate.getMonth() + 1}/${postDate.getDate()}/${postDate.getFullYear()}</span>

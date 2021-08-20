@@ -19,7 +19,7 @@ Post.prototype.cleanUp = function() {
   this.data = {
     title: sanitizeHTML(this.data.title.trim(), {allowedTags: [], allowedAttributes: {}}),
     body: sanitizeHTML(this.data.body.trim(), {allowedTags: [], allowedAttributes: {}}),
-    createdDate: new Date(),
+    createdAt: new Date(),
     author: ObjectID(this.userid)
   }
 }
@@ -84,7 +84,7 @@ Post.reusablePostQuery = function(uniqueOperations, visitorId, finalOperations =
       {$project: {
         title: 1,
         body: 1,
-        createdDate: 1,
+        createdAt: 1,
         authorId: "$author",
         author: {$arrayElemAt: ["$authorDocument", 0]}
       }}
@@ -131,7 +131,7 @@ Post.findSingleById = function(id, visitorId) {
 Post.findByAuthorId = function(authorId) {
   return Post.reusablePostQuery([
     {$match: {author: authorId}},
-    {$sort: {createdDate: -1}}
+    {$sort: {createdAt: -1}}
   ])
 }
 
@@ -181,7 +181,7 @@ Post.getFeed = async function(id) {
   // look for posts where the author is in the above array of followed users
   return Post.reusablePostQuery([
     {$match: {author: {$in: followedUsers}}},
-    {$sort: {createdDate: -1}}
+    {$sort: {createdAt: -1}}
   ])
 }
 
