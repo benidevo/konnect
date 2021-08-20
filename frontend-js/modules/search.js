@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify'
 export default class Search {
   // 1. Select DOM elements, and keep track of any useful data
   constructor() {
+    this._csrf = document.querySelector('[name="_csrf"]').value
     this.injectHTML()
     this.headerSearchIcon = document.querySelector(".header-search-icon")
     this.overlay = document.querySelector(".search-overlay")
@@ -47,7 +48,7 @@ export default class Search {
   }
 
   sendRequest() {
-    axios.post('/search', {searchTerm: this.inputField.value}).then(response => {
+    axios.post('/search', {_csrf: this._csrf, searchTerm: this.inputField.value}).then(response => {
       console.log(response.data)
       this.renderResultsHTML(response.data)
     }).catch(() => {
@@ -60,7 +61,7 @@ export default class Search {
       this.resultsArea.innerHTML = DOMPurify.sanitize(`<div class="list-group shadow-sm">
       <div class="list-group-item active"><strong>Search Results</strong> (${posts.length > 1 ? `${posts.length} items found` : '1 item found'})</div>
       ${posts.map(post => {
-        let postDate = new Date(post.createdAt)
+        let postDate = new Date(post.createdDate)
         return `<a href="/post/${post._id}" class="list-group-item list-group-item-action">
         <img class="avatar-tiny" src="${post.author.avatar}"> <strong>${post.title}</strong>
         <span class="text-muted small">by ${post.author.username} on ${postDate.getMonth()}/${postDate.getDate()}/${postDate.getFullYear()}</span>
